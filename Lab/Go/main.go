@@ -8,9 +8,9 @@ import (
 
 func main() {
 
-	task := flag.Int("t", 1, "task num")
+	task := flag.Int("t", 1, "task num") // создаем флаг t, 1 - значение по умолчанию, "task num" - описание флага
 
-	flag.Parse()
+	flag.Parse() // парсим флаги
 
 	switch *task {
 	case 1:
@@ -23,6 +23,10 @@ func main() {
 		task4()
 	case 5:
 		task5()
+	case 6:
+		task6()
+	default:
+		task1()
 	}
 }
 
@@ -70,10 +74,25 @@ func task5() {
 	fmt.Printf("X: %f, Y:%f\nSum: %f, dif: %f", x, y, plus(x, y), minus(x, y))
 }
 
+func task6() {
+	arr := [3]int{1, 2, 97} // обьявляем массив с тремя элементами
+	sum := 0
+
+	fmt.Print(arr) // выводим массив
+
+	for i := 0; i < len(arr); i++ { //суммируем все элементы массива
+		sum += arr[i]
+	}
+
+	fmt.Printf(", AVG: %f", float64(sum)/float64(len(arr))) // приводим сумму и длину массива к дробной части и выводим среднее значение
+}
+
+// функция сложения двух чисел
 func plus(a float64, b float64) float64 {
 	return a + b
 }
 
+// функция вычитания двух чисел
 func minus(a float64, b float64) float64 {
 	return a - b
 }
