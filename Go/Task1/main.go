@@ -1,20 +1,17 @@
 package main
 
-import "fmt"
+import (
+	"fmt"  // пакет ввода и вывода данных
+	"time" // пакет, для работы с датой
+)
 
 func main() {
 
-	fmt.Println("Введите первое число: ")
-	var firstNum int
-	fmt.Scanf("%d\n", &firstNum)
+	DateNow := time.Now() // Получение даты
 
-	fmt.Println("Введите второе число: ")
-	var secondNum int
-	fmt.Scanf("%d\n", &secondNum)
+	Year, Month, Day := DateNow.Date()        // Получаем у даты методом Date() - год, месяц, день
+	Hour, Minutes, Seconds := DateNow.Clock() // Получаем у даты методом Clock() - час, минуты, секунды
 
-	fmt.Println("Введите знак операции:")
-	var symbol string
-	fmt.Scanf("%s\n", &symbol)
-
-	fmt.Printf("Результат: %d\n", firstNum+secondNum)
+	fmt.Printf("Today %d %s, %d year.\n", Day, Month, Year)       // Выводим дату
+	fmt.Printf("Current time: %d:%d:%d.", Hour, Minutes, Seconds) // Выводим время
 }
