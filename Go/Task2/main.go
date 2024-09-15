@@ -4,17 +4,15 @@ import "fmt"
 
 func main() {
 
-	fmt.Println("Введите первое число: ")
-	var firstNum int
-	fmt.Scanf("%d\n", &firstNum)
+	var i int = 100          // целое число
+	var f32 float32 = 3.14   // дробное число
+	var f64 float64 = 3.2314 // дробное число с большей точностью
+	var b bool = true        // булево значение
+	var s string = "Hello"   // строка
 
-	fmt.Println("Введите второе число: ")
-	var secondNum int
-	fmt.Scanf("%d\n", &secondNum)
-
-	fmt.Println("Введите знак операции:")
-	var symbol string
-	fmt.Scanf("%s\n", &symbol)
-
-	fmt.Printf("Результат: %d\n", firstNum+secondNum)
+	fmt.Printf("%T - %d\n", i, i)       // вывод целого
+	fmt.Printf("%T - %f\n", f32, f32)   // вывод дробного
+	fmt.Printf("%T - %.2f\n", f64, f64) // вывод дробного округленный до двух знаков
+	fmt.Printf("%T - %t\n", b, b)       // вывод булево
+	fmt.Printf("%T - %s\n", s, s)       // вывод строки
 }
