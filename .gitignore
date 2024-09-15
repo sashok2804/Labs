@@ -1,0 +1,47 @@
+# Build папки
+[Bb]in/
+[Oo]bj/
+
+# User-specific файлы
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Auto-generated файлы
+*.log
+*.tlog
+*.tmp
+*.ipch
+*.obj
+*.pdb
+*.opendb
+*.VC.db
+
+# Visual Studio Code workspace и настройки
+.vscode/
+*.code-workspace
+
+# Конфигурационные файлы
+*.psess
+*.vspx
+*.vsp
+*.vspscc
+.vs/
+
+# Пакеты
+packages/
+*.nupkg
+*.snupkg
+.project.json
+project.lock.json
+artifacts/
+
+# Дополнительно
+*.dll
+*.exe
+*.config
+*.csv
+*.json
+*.xml
