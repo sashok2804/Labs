@@ -21,6 +21,8 @@ func main() {
 		task3()
 	case 4:
 		task4()
+	case 5:
+		task5()
 	}
 }
 
@@ -60,4 +62,18 @@ func task4() {
 	x := 44
 
 	fmt.Printf("X: %d, Y: %d, sum: %d\n", x, y, x+y)
+}
+
+func task5() {
+	x := 124.17684
+	y := 432.48724
+	fmt.Printf("X: %f, Y:%f\nSum: %f, dif: %f", x, y, plus(x, y), minus(x, y))
+}
+
+func plus(a float64, b float64) float64 {
+	return a + b
+}
+
+func minus(a float64, b float64) float64 {
+	return a - b
 }
