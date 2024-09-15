@@ -14,7 +14,7 @@
 Для запуска программы используйте команду:
 
 ```bash
-go run .\Lab\Go\main.go -t <value>
+go run .\Lab<num>\Go\main.go -t <value>
 ```
 
 где `<value>` — это значение от 1 до 6, которое определяет поведение программы.
@@ -22,7 +22,7 @@ go run .\Lab\Go\main.go -t <value>
 ### Пример
 
 ```bash
-go run .\Lab\Go\main.go -t 6
+go run .\Lab1\Go\main.go -t 6
 ```
 
 ## Возможные значения параметра
