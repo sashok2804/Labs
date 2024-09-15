@@ -19,6 +19,8 @@ func main() {
 		task2()
 	case 3:
 		task3()
+	case 4:
+		task4()
 	}
 }
 
@@ -49,6 +51,13 @@ func task2() {
 func task3() {
 	var y int = 44 // Полная запись обьявления
 	x := 56        // Краткая запись обьявления
+
+	fmt.Printf("X: %d, Y: %d, sum: %d\n", x, y, x+y)
+}
+
+func task4() {
+	y := 33
+	x := 44
 
 	fmt.Printf("X: %d, Y: %d, sum: %d\n", x, y, x+y)
 }
