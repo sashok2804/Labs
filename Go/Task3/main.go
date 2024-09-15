@@ -4,17 +4,9 @@ import "fmt"
 
 func main() {
 
-	fmt.Println("Введите первое число: ")
-	var firstNum int
-	fmt.Scanf("%d\n", &firstNum)
+	var y int = 44 // Полная запись обьявления
+	x := 56        // Краткая запись обьявления
 
-	fmt.Println("Введите второе число: ")
-	var secondNum int
-	fmt.Scanf("%d\n", &secondNum)
+	fmt.Printf("X: %d, Y: %d, sum: %d\n", x, y, x+y)
 
-	fmt.Println("Введите знак операции:")
-	var symbol string
-	fmt.Scanf("%s\n", &symbol)
-
-	fmt.Printf("Результат: %d\n", firstNum+secondNum)
 }
