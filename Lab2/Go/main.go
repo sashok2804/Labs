@@ -65,7 +65,8 @@ func task4() {
 }
 
 func task5() {
-
+	rect := Rectangle{10, 20}
+	rect.Square()
 }
 
 func task6() {
@@ -90,5 +91,17 @@ func strLen(s string) int {
 	}
 
 	return sum
+}
 
+type Rectangle struct {
+	Width  int
+	Height int
+}
+
+func (r Rectangle) Square() int {
+	s := r.Width * r.Height
+
+	fmt.Printf("Ширина - %d, высота - %d, площадь - %d", r.Width, r.Height, s)
+
+	return s
 }
