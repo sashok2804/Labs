@@ -57,7 +57,11 @@ func task3() {
 }
 
 func task4() {
+	str := ""
 
+	fmt.Scan(&str)
+
+	fmt.Printf("Строка '%s' - %d симв.", str, strLen(str))
 }
 
 func task5() {
@@ -76,4 +80,15 @@ func numPos(n int) string {
 		return "negative"
 	}
 	return "zero"
+}
+
+func strLen(s string) int {
+	sum := 0
+
+	for range s {
+		sum++
+	}
+
+	return sum
+
 }
