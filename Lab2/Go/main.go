@@ -70,7 +70,10 @@ func task5() {
 }
 
 func task6() {
+	num1 := 30
+	num2 := 15
 
+	fmt.Printf("fisrt - %d, second - %d, avg - %f", num1, num2, sred(num1, num2))
 }
 
 func numPos(n int) string {
@@ -104,4 +107,8 @@ func (r Rectangle) Square() int {
 	fmt.Printf("Ширина - %d, высота - %d, площадь - %d", r.Width, r.Height, s)
 
 	return s
+}
+
+func sred(first int, second int) float64 {
+	return (float64(first) + float64(second)) / 2
 }
