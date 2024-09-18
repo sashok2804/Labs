@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Globalization;
 
 class Program
 {
 	static void Main(string[] args)
 	{
-		// Создаем флаг task с параметром по умолчанию 1
+		// Обрабатываем флаг -t, по умолчанию значение 1
 		int task = 1;
 		for (int i = 0; i < args.Length; i++)
 		{
@@ -16,7 +15,7 @@ class Program
 			}
 		}
 
-		// Выбор задания на основе значения флага
+		// Вызываем задачу в зависимости от переданного значения
 		switch (task)
 		{
 			case 1:
@@ -24,6 +23,9 @@ class Program
 			break;
 			case 2:
 			Task2();
+			break;
+			case 3:
+			Task3();
 			break;
 			case 4:
 			Task4();
@@ -42,77 +44,90 @@ class Program
 
 	static void Task1()
 	{
-		// Получение текущей даты и времени
-		DateTime now = DateTime.Now;
+		Console.Write("Введите ваше число: ");
+		int age = int.Parse(Console.ReadLine());
 
-		// Вывод даты
-		Console.WriteLine($"Today {now.Day} {now.ToString("MMMM", CultureInfo.InvariantCulture)}, {now.Year} year.");
-
-		// Вывод времени
-		Console.WriteLine($"Current time: {now.Hour}:{now.Minute}:{now.Second}.");
+		if (age % 2 == 0)
+		{
+			Console.WriteLine($"{age} - четное");
+		}
+		else
+		{
+			Console.WriteLine($"{age} - нечетное");
+		}
 	}
 
 	static void Task2()
 	{
-		int i = 100;            // целое число
-		float f = 3.14f;        // дробное число
-		double d = 3.2314;      // дробное число с большей точностью
-		bool b = true;          // булево значение
-		string s = "Hello";     // строка
+		int num = 0;
+		Console.WriteLine($"{num} - {NumPos(num)}");
+	}
 
-		// Вывод типов и значений
-		Console.WriteLine($"{i.GetType()} - {i}");
-		Console.WriteLine($"{f.GetType()} - {f}");
-		Console.WriteLine($"{d.GetType()} - {d:F2}"); // Округление до 2 знаков
-		Console.WriteLine($"{b.GetType()} - {b}");
-		Console.WriteLine($"{s.GetType()} - {s}");
+	static void Task3()
+	{
+		int count = 11;
+		for (int i = 1; i < count; i++)
+		{
+			Console.Write($"{i}, ");
+		}
+		Console.WriteLine();
 	}
 
 	static void Task4()
 	{
-		int y = 33;
-		int x = 44;
-
-		// Вывод суммы
-		Console.WriteLine($"X: {x}, Y: {y}, sum: {x + y}");
+		Console.Write("Введите строку: ");
+		string str = Console.ReadLine();
+		Console.WriteLine($"Строка '{str}' - {StrLen(str)} симв.");
 	}
 
 	static void Task5()
 	{
-		double x = 124.17684;
-		double y = 432.48724;
-
-		// Вывод суммы и разности
-		Console.WriteLine($"X: {x}, Y: {y}\nSum: {Plus(x, y)}, dif: {Minus(x, y)}");
+		Rectangle rect = new Rectangle(10, 20);
+		rect.Square();
 	}
 
 	static void Task6()
 	{
-		int[] arr = { 1, 2, 97 }; // объявляем массив
-		int sum = 0;
-
-		// Вывод массива
-		Console.Write("Array: ");
-		foreach (var num in arr)
-		{
-			Console.Write(num + " ");
-			sum += num;
-		}
-
-		// Вычисление и вывод среднего значения
-		double avg = (double)sum / arr.Length;
-		Console.WriteLine($"\nAVG: {avg:F2}");
+		int num1 = 30;
+		int num2 = 15;
+		Console.WriteLine($"first - {num1}, second - {num2}, avg - {Sred(num1, num2):F2}");
 	}
 
-	// Функция сложения двух чисел
-	static double Plus(double a, double b)
+	static string NumPos(int n)
 	{
-		return a + b;
+		if (n > 0)
+			return "positive";
+		if (n < 0)
+			return "negative";
+		return "zero";
 	}
 
-	// Функция вычитания двух чисел
-	static double Minus(double a, double b)
+	static int StrLen(string s)
 	{
-		return a - b;
+		return s.Length;
+	}
+
+	static double Sred(int first, int second)
+	{
+		return ( first + second ) / 2.0;
+	}
+}
+
+class Rectangle
+{
+	public int Width { get; set; }
+	public int Height { get; set; }
+
+	public Rectangle(int width, int height)
+	{
+		Width = width;
+		Height = height;
+	}
+
+	public int Square()
+	{
+		int s = Width * Height;
+		Console.WriteLine($"Ширина - {Width}, высота - {Height}, площадь - {s}");
+		return s;
 	}
 }
