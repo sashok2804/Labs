@@ -49,7 +49,11 @@ func task2() {
 }
 
 func task3() {
+	count := 11
 
+	for i := 1; i < count; i++ {
+		fmt.Printf("%d, ", i)
+	}
 }
 
 func task4() {
