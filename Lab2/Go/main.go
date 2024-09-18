@@ -40,11 +40,12 @@ func task1() {
 	} else {
 		fmt.Printf("%d - нечетное", age)
 	}
-
 }
 
 func task2() {
+	num := 0
 
+	fmt.Printf("%d - %s", num, numPos(num))
 }
 
 func task3() {
@@ -61,4 +62,14 @@ func task5() {
 
 func task6() {
 
+}
+
+func numPos(n int) string {
+	if n > 0 {
+		return "positive"
+	}
+	if n < 0 {
+		return "negative"
+	}
+	return "zero"
 }
