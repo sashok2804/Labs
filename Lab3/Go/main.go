@@ -2,7 +2,8 @@ package main
 
 import (
 	"Go/fact" // пакет для факториала
-	"flag"    // пакет, для работы с флагами
+	"Go/str"
+	"flag" // пакет, для работы с флагами
 	"fmt"
 )
 
@@ -31,7 +32,7 @@ func main() {
 }
 
 func task1() {
-	var num int
+	num := 0
 	fmt.Print("Введите число: ")
 	fmt.Scan(&num)
 
@@ -40,7 +41,12 @@ func task1() {
 }
 
 func task2() {
+	s := ""
+	fmt.Print("Введите строку: ")
+	fmt.Scan(&s)
 
+	revStr := str.Reverse(s)
+	fmt.Printf("Перевернутая строка: %s", revStr)
 }
 
 func task3() {
