@@ -50,7 +50,9 @@ func task2() {
 }
 
 func task3() {
+	arr := [5]int{1, 2, 3, 4, 5}
 
+	fmt.Println("Массив: ", arr)
 }
 
 func task4() {
