@@ -56,11 +56,34 @@ func task3() {
 }
 
 func task4() {
+	arr := [5]int{1, 2, 3, 4, 5}
+	slice := arr[0:3]
+
+	fmt.Printf("Массив: %v, срез от 0 до 3 эл.: %v\n", arr, slice)
+
+	slice = append(slice, 99)
+
+	fmt.Printf("Добавлено число 99 в срез: %v\n", slice)
+
+	slice = append(slice[:2], slice[3:]...)
+
+	fmt.Printf("Удален элемент с индексом 2: %v\n", slice)
 
 }
 
 func task5() {
+	strings := []string{"mama", "papas", "gojwoiawd", "nnnnnnnnnnnnnnnnnnnnnn"}
+	longStr := ""
 
+	fmt.Printf("Строки: %v\n", strings)
+
+	for _, str := range strings {
+		if len(str) > len(longStr) {
+			longStr = str
+		}
+	}
+
+	fmt.Printf("Длинная строка: %s", longStr)
 }
 
 func task6() {
