@@ -1,12 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"flag" // пакет, для работы с флагами
 	"fmt"
-	"os"
-	"strconv"
-	"strings"
 )
 
 func main() {
@@ -34,111 +30,85 @@ func main() {
 }
 
 func task1() {
-	people := make(map[string]int)
-	addPerson(people, "Иван", 25)
-	addPerson(people, "Анна", 30)
-	addPerson(people, "Сергей", 35)
+	age := 33
 
-	fmt.Println("Список людей:")
-	printPeople(people)
+	fmt.Printf("Введите ваше число: ")
+	fmt.Scan(&age)
+
+	if age%2 == 0 {
+		fmt.Printf("%d - четное", age)
+	} else {
+		fmt.Printf("%d - нечетное", age)
+	}
 }
 
 func task2() {
-	people := make(map[string]int)
-	addPerson(people, "Иван", 25)
-	addPerson(people, "Анна", 30)
-	addPerson(people, "Сергей", 35)
+	num := 33
 
-	fmt.Printf("Средний возраст: %.2f\n", averageAge(people))
+	fmt.Printf("%d - %s", num, numPos(num))
 }
 
 func task3() {
-	people := make(map[string]int)
-	addPerson(people, "Иван", 25)
-	addPerson(people, "Анна", 30)
-	addPerson(people, "Сергей", 35)
+	count := 11
 
-	fmt.Println("Список до удаления Анны:")
-	printPeople(people)
-
-	removePerson(people, "Анна")
-	fmt.Println("Список после удаления Анны:")
-	printPeople(people)
+	for i := 1; i < count; i++ {
+		fmt.Printf("%d, ", i)
+	}
 }
 
 func task4() {
-	fmt.Println("Введите строку:")
-	reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
-	fmt.Println(strings.ToUpper(strings.TrimSpace(input)))
+	str := ""
+
+	fmt.Scan(&str)
+
+	fmt.Printf("Строка '%s' - %d симв.", str, strLen(str))
 }
 
 func task5() {
-	fmt.Println("Введите числа через пробел:")
-	reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
-	input = strings.TrimSpace(input)
-
-	numStrings := strings.Split(input, " ")
-	sum := 0
-
-	for _, numStr := range numStrings {
-		num, err := strconv.Atoi(numStr)
-		if err == nil {
-			sum += num
-		} else {
-			fmt.Println("Ошибка преобразования числа:", numStr)
-		}
-	}
-	fmt.Println("Сумма чисел:", sum)
+	rect := Rectangle{10, 20}
+	rect.Square()
 }
 
 func task6() {
-	fmt.Println("Введите числа через пробел:")
-	reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
-	input = strings.TrimSpace(input)
+	num1 := 30
+	num2 := 15
 
-	numStrings := strings.Split(input, " ")
-	var numbers []int
-
-	for _, numStr := range numStrings {
-		num, err := strconv.Atoi(numStr)
-		if err == nil {
-			numbers = append(numbers, num)
-		} else {
-			fmt.Println("Ошибка преобразования числа:", numStr)
-		}
-	}
-
-	fmt.Println("Массив в обратном порядке:")
-	for i := len(numbers) - 1; i >= 0; i-- {
-		fmt.Printf("%d ", numbers[i])
-	}
-	fmt.Println()
+	fmt.Printf("fisrt - %d, second - %d, avg - %f", num1, num2, sred(num1, num2))
 }
 
-func addPerson(people map[string]int, name string, age int) {
-	people[name] = age
+func numPos(n int) string {
+	if n > 0 {
+		return "positive"
+	}
+	if n < 0 {
+		return "negative"
+	}
+	return "zero"
 }
 
-func printPeople(people map[string]int) {
-	for name, age := range people {
-		fmt.Printf("%s: %d\n", name, age)
+func strLen(s string) int {
+	sum := 0
+
+	for range s {
+		sum++
 	}
+
+	return sum
 }
 
-func removePerson(people map[string]int, name string) {
-	delete(people, name)
+type Rectangle struct {
+	Width  int
+	Height int
 }
 
-func averageAge(people map[string]int) float64 {
-	if len(people) == 0 {
-		return 0
-	}
-	totalAge := 0
-	for _, age := range people {
-		totalAge += age
-	}
-	return float64(totalAge) / float64(len(people))
+func (r Rectangle) Square() int {
+	s := r.Width * r.Height
+
+	fmt.Printf("Ширина - %d, высота - %d, площадь - %d", r.Width, r.Height, s)
+
+	return s
+}
+
+func sred(first int, second int) float64 {
+	return (float64(first) + float64(second)) / 2
 }
