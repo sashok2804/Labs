@@ -30,7 +30,7 @@ func main() {
 }
 
 func task1() {
-	age := 0
+	age := 33
 
 	fmt.Printf("Введите ваше число: ")
 	fmt.Scan(&age)
@@ -43,7 +43,7 @@ func task1() {
 }
 
 func task2() {
-	num := 0
+	num := 33
 
 	fmt.Printf("%d - %s", num, numPos(num))
 }
