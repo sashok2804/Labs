@@ -2,7 +2,7 @@ package main
 
 import (
 	"bufio"
-	"flag" // пакет, для работы с флагами
+	"flag"
 	"fmt"
 	"os"
 	"strconv"
