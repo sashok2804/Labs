@@ -1,103 +1,39 @@
+// Задание:
+// Синхронизация с помощью мьютексов:
+// Реализуйте программу, в которой несколько горутин увеличивают общую переменную-счётчик.
+// Используйте мьютексы (sync.Mutex) для предотвращения гонки данных.
+// Включите и выключите мьютексы, чтобы увидеть разницу в работе программы.
+
 package main
 
 import (
-	"flag"
 	"fmt"
-	"math"
+	"sync"
 )
 
+var mutex sync.Mutex // Мьютекс для синхронизации доступа к переменной-счётчику
+var counter int
+
 func main() {
+	var wg sync.WaitGroup // Определяем WaitGroup для ожидания завершения всех горутин
 
-	task := flag.Int("t", 1, "task num") // создаем флаг t, 1 - значение по умолчанию, "task num" - описание флага
+	numGoroutines := 5
+	numIterations := 1000
 
-	flag.Parse() // парсим флаги
+	for i := 0; i < numGoroutines; i++ {
+		wg.Add(1) // Увеличиваем счётчик WaitGroup на 1 для каждой запущенной горутины
+		go func() {
+			defer wg.Done() // Уменьшаем счётчик WaitGroup на 1 после завершения горутины
 
-	switch *task {
-	case 1:
-		task1()
-	case 2:
-		task2()
-	case 3:
-		task3()
-	case 4:
-		task4()
-	default:
-		task1()
+			for j := 0; j < numIterations; j++ {
+				mutex.Lock()
+				counter++
+				mutex.Unlock()
+			}
+		}()
 	}
-}
-func task1() {
-	p := Person{name: "Alice", age: 30}
-	p.Info()
 
-	p.Birthday()
-	p.Info()
-}
+	wg.Wait() // Ожидаем завершения всех горутин
 
-func task2() {
-	c := Circle{radius: 5}
-	fmt.Printf("Circle Area: %.2f\n", c.Area())
-}
-
-func task3() {
-	c := Circle{radius: 5}
-	r := Rectangle{width: 4, height: 5}
-
-	shapes := []Shape{c, r}
-	PrintAreas(shapes)
-}
-func task4() {
-	b := Book{title: "Biblia", author: "IISYS"}
-	fmt.Println(b.String())
-}
-
-type Person struct {
-	name string
-	age  int
-}
-
-func (p Person) Info() {
-	fmt.Printf("Name: %s, Age: %d\n", p.name, p.age)
-}
-
-func (p *Person) Birthday() {
-	p.age++
-}
-
-type Circle struct {
-	radius float64
-}
-
-func (c Circle) Area() float64 {
-	return math.Pi * c.radius * c.radius
-}
-
-type Rectangle struct {
-	width, height float64
-}
-
-func (r Rectangle) Area() float64 {
-	return r.width * r.height
-}
-
-type Shape interface {
-	Area() float64
-}
-
-func PrintAreas(shapes []Shape) {
-	for _, shape := range shapes {
-		fmt.Printf("Area: %.2f\n", shape.Area())
-	}
-}
-
-type Book struct {
-	title  string
-	author string
-}
-
-type Stringer interface {
-	String() string
-}
-
-func (b Book) String() string {
-	return fmt.Sprintf("Title: %s, Author: %s", b.title, b.author)
+	fmt.Printf("Итоговое значение счётчика: %d\n", counter)
 }
