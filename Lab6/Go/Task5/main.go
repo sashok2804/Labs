@@ -1,103 +1,89 @@
+// Задание
+// Разработка многопоточного калькулятора:
+// Напишите многопоточный калькулятор, который одновременно может обрабатывать запросы на выполнение простых операций (+, -, *, /).
+// Используйте каналы для отправки запросов и возврата результатов.
+// Организуйте взаимодействие между клиентскими запросами и серверной частью калькулятора с помощью горутин.
+
 package main
 
 import (
-	"flag"
 	"fmt"
-	"math"
 )
 
+// Описание структуры запроса для калькулятора
+type CalcRequest struct {
+	Operand1  float64
+	Operand2  float64
+	Operation string
+	Result    chan float64 // Канал для возврата результата
+	Error     chan error   // Канал для возврата ошибки
+}
+
+// Функция-калькулятор, обрабатывающая запросы в отдельной горутине
+func calculator(requests chan CalcRequest) {
+	for req := range requests {
+		var result float64
+		var err error
+
+		// Обработка операций
+		switch req.Operation {
+		case "+":
+			result = req.Operand1 + req.Operand2
+		case "-":
+			result = req.Operand1 - req.Operand2
+		case "*":
+			result = req.Operand1 * req.Operand2
+		case "/":
+			if req.Operand2 != 0 {
+				result = req.Operand1 / req.Operand2
+			} else {
+				err = fmt.Errorf("деление на ноль")
+			}
+		default:
+			err = fmt.Errorf("неизвестная операция")
+		}
+
+		if err != nil {
+			req.Error <- err
+		} else {
+			req.Result <- result
+		}
+	}
+}
+
+// Функция для отправки запроса и получения результата
+func sendRequest(operand1, operand2 float64, operation string, requests chan CalcRequest) {
+
+	result := make(chan float64)
+	err := make(chan error)
+
+	requests <- CalcRequest{
+		Operand1:  operand1,
+		Operand2:  operand2,
+		Operation: operation,
+		Result:    result,
+		Error:     err,
+	}
+
+	select {
+	case res := <-result:
+		fmt.Printf("Результат: %.2f %s %.2f = %.2f\n", operand1, operation, operand2, res)
+	case e := <-err:
+		fmt.Printf("Ошибка: %s\n", e.Error())
+	}
+}
+
 func main() {
+	requests := make(chan CalcRequest)
 
-	task := flag.Int("t", 1, "task num") // создаем флаг t, 1 - значение по умолчанию, "task num" - описание флага
+	go calculator(requests)
 
-	flag.Parse() // парсим флаги
+	sendRequest(5, 3, "+", requests)
+	sendRequest(7, 2, "-", requests)
+	sendRequest(6, 3, "*", requests)
+	sendRequest(10, 0, "/", requests)
+	sendRequest(9, 3, "/", requests)
 
-	switch *task {
-	case 1:
-		task1()
-	case 2:
-		task2()
-	case 3:
-		task3()
-	case 4:
-		task4()
-	default:
-		task1()
-	}
-}
-func task1() {
-	p := Person{name: "Alice", age: 30}
-	p.Info()
-
-	p.Birthday()
-	p.Info()
-}
-
-func task2() {
-	c := Circle{radius: 5}
-	fmt.Printf("Circle Area: %.2f\n", c.Area())
-}
-
-func task3() {
-	c := Circle{radius: 5}
-	r := Rectangle{width: 4, height: 5}
-
-	shapes := []Shape{c, r}
-	PrintAreas(shapes)
-}
-func task4() {
-	b := Book{title: "Biblia", author: "IISYS"}
-	fmt.Println(b.String())
-}
-
-type Person struct {
-	name string
-	age  int
-}
-
-func (p Person) Info() {
-	fmt.Printf("Name: %s, Age: %d\n", p.name, p.age)
-}
-
-func (p *Person) Birthday() {
-	p.age++
-}
-
-type Circle struct {
-	radius float64
-}
-
-func (c Circle) Area() float64 {
-	return math.Pi * c.radius * c.radius
-}
-
-type Rectangle struct {
-	width, height float64
-}
-
-func (r Rectangle) Area() float64 {
-	return r.width * r.height
-}
-
-type Shape interface {
-	Area() float64
-}
-
-func PrintAreas(shapes []Shape) {
-	for _, shape := range shapes {
-		fmt.Printf("Area: %.2f\n", shape.Area())
-	}
-}
-
-type Book struct {
-	title  string
-	author string
-}
-
-type Stringer interface {
-	String() string
-}
-
-func (b Book) String() string {
-	return fmt.Sprintf("Title: %s, Author: %s", b.title, b.author)
+	var input string
+	fmt.Scanln(&input)
 }
