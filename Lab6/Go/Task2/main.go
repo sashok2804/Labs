@@ -1,103 +1,48 @@
+// Задание:
+// Реализуйте приложение на Go, которое использует каналы для передачи данных между двумя горутинами.
+// 1. Одна горутина должна генерировать последовательность чисел (например, первые 10 чисел Фибоначчи) и отправлять их в канал.
+// 2. Другая горутина должна считывать данные из канала и выводить их на экран.
+// 3. Используйте блокировку канала с помощью close(), чтобы сигнализировать, что данные больше не будут отправляться в канал.
+// 4. Объясните роль закрытия канала.
+
 package main
 
 import (
-	"flag"
 	"fmt"
-	"math"
+	"sync"
 )
 
+// Функция для генерации чисел Фибоначчи и отправки их в канал
+func generateFibonacci(n int, ch chan int, wg *sync.WaitGroup) {
+	defer wg.Done() // Сигнализируем, что горутина завершила свою работу
+	a, b := 0, 1
+	for i := 0; i < n; i++ {
+		ch <- a
+		a, b = b, a+b
+	}
+	close(ch) // Закрываем канал после отправки всех данных
+}
+
+// Функция для чтения данных из канала и их вывода на экран
+func printFibonacci(ch chan int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	for num := range ch {
+		fmt.Println(num)
+	}
+}
+
 func main() {
+	n := 10
+	ch := make(chan int)
+	var wg sync.WaitGroup // Создаем WaitGroup для синхронизации
 
-	task := flag.Int("t", 1, "task num") // создаем флаг t, 1 - значение по умолчанию, "task num" - описание флага
+	// Добавляем в WaitGroup две горутины
+	wg.Add(2)
 
-	flag.Parse() // парсим флаги
+	go generateFibonacci(n, ch, &wg)
 
-	switch *task {
-	case 1:
-		task1()
-	case 2:
-		task2()
-	case 3:
-		task3()
-	case 4:
-		task4()
-	default:
-		task1()
-	}
-}
-func task1() {
-	p := Person{name: "Alice", age: 30}
-	p.Info()
+	go printFibonacci(ch, &wg)
 
-	p.Birthday()
-	p.Info()
-}
-
-func task2() {
-	c := Circle{radius: 5}
-	fmt.Printf("Circle Area: %.2f\n", c.Area())
-}
-
-func task3() {
-	c := Circle{radius: 5}
-	r := Rectangle{width: 4, height: 5}
-
-	shapes := []Shape{c, r}
-	PrintAreas(shapes)
-}
-func task4() {
-	b := Book{title: "Biblia", author: "IISYS"}
-	fmt.Println(b.String())
-}
-
-type Person struct {
-	name string
-	age  int
-}
-
-func (p Person) Info() {
-	fmt.Printf("Name: %s, Age: %d\n", p.name, p.age)
-}
-
-func (p *Person) Birthday() {
-	p.age++
-}
-
-type Circle struct {
-	radius float64
-}
-
-func (c Circle) Area() float64 {
-	return math.Pi * c.radius * c.radius
-}
-
-type Rectangle struct {
-	width, height float64
-}
-
-func (r Rectangle) Area() float64 {
-	return r.width * r.height
-}
-
-type Shape interface {
-	Area() float64
-}
-
-func PrintAreas(shapes []Shape) {
-	for _, shape := range shapes {
-		fmt.Printf("Area: %.2f\n", shape.Area())
-	}
-}
-
-type Book struct {
-	title  string
-	author string
-}
-
-type Stringer interface {
-	String() string
-}
-
-func (b Book) String() string {
-	return fmt.Sprintf("Title: %s, Author: %s", b.title, b.author)
+	// Ожидаем завершения всех горутин
+	wg.Wait()
 }
