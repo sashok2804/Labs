@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 class Program
 {
-	// Описание структуры запроса для калькулятора
+	// Cтруктура запроса для калькулятора
 	public class CalcRequest
 	{
 		public double Operand1 { get; set; }
@@ -23,7 +23,6 @@ class Program
 			{
 				double result = 0;
 
-				// Обработка операций
 				switch (req.Operation)
 				{
 					case "+":
@@ -46,12 +45,10 @@ class Program
 					throw new InvalidOperationException("Неизвестная операция");
 				}
 
-				// Если ошибок нет, устанавливаем результат
 				req.Result.SetResult(result);
 			}
 			catch (Exception ex)
 			{
-				// Если произошла ошибка, передаем её
 				req.Error.SetResult(ex.Message);
 			}
 		}
@@ -102,6 +99,6 @@ class Program
 		await SendRequest(10, 0, "/", requests);
 		await SendRequest(9, 3, "/", requests);
 
-		Console.ReadLine(); // Ожидание ввода для завершения программы
+		Console.ReadLine(); 
 	}
 }

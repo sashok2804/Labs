@@ -19,7 +19,6 @@ class Program
 		// Обработка сообщений из каналов
 		var resultTask = Task.Run(() => ProcessResults(resultCh));
 
-		// Ожидаем завершения
 		await Task.WhenAll(generateTask, checkTask, resultTask);
 	}
 
@@ -30,7 +29,7 @@ class Program
 		{
 			int num = rand.Next(100);
 			numCh.Add(num);
-			Thread.Sleep(1000); // Пауза для имитации задержки
+			Thread.Sleep(1000); 
 		}
 	}
 

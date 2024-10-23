@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 class Program
 {
-	// Функция для расчёта факториала числа
 	static async Task<int> CalculateFactorialAsync(int n)
 	{
 		Console.WriteLine($"Расчёт факториала для числа {n}...");
@@ -13,31 +12,29 @@ class Program
 		int factorial = 1;
 		for (int i = 2; i <= n; i++)
 		{
-			factorial *= i; // Вычисление факториала
+			factorial *= i; 
 		}
 		return factorial;
 	}
 
-	// Функция для генерации случайных чисел
 	static async Task<int[]> GenerateRandomNumbersAsync(int count)
 	{
 		Console.WriteLine("Генерация случайных чисел...");
-		await Task.Delay(1000); // Имитация задержки выполнения
+		await Task.Delay(1000); 
 		Random rand = new Random();
 		int[] randomNumbers = new int[count];
 		for (int i = 0; i < count; i++)
 		{
-			randomNumbers[i] = rand.Next(0, 100); // Генерация случайного числа от 0 до 99
+			randomNumbers[i] = rand.Next(0, 100); 
 		}
 		return randomNumbers;
 	}
 
-	// Функция для вычисления суммы числового ряда
 	static async Task<int> CalculateSumAsync(int n)
 	{
 		Console.WriteLine($"Вычисление суммы числового ряда от 1 до {n}...");
-		await Task.Delay(3000); // Имитация задержки выполнения
-		int sum = Enumerable.Range(1, n).Sum(); // Вычисление суммы ряда
+		await Task.Delay(3000); 
+		int sum = Enumerable.Range(1, n).Sum(); 
 		return sum;
 	}
 

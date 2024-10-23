@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 class Program
 {
-	// Функция для реверсирования строки
 	static string ReverseString(string s)
 	{
 		return new string(s.Reverse().ToArray());

@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 class Program
 {
 	static int counter = 0;
-	static Mutex mutex = new Mutex(); // Мьютекс для синхронизации
+	static Mutex mutex = new Mutex(); 
 
 	static async Task Main(string[] args)
 	{
-		int numTasks = 5; // Количество задач 
-		int numIterations = 1000; // Количество итераций для каждой задачи
+		int numTasks = 5; 
+		int numIterations = 1000; 
 
 		// Создаём и запускаем задачи
 		Task[] tasks = new Task[numTasks];
@@ -19,10 +19,8 @@ class Program
 			tasks[i] = Task.Run(() => IncrementCounter(numIterations));
 		}
 
-		// Ожидаем завершения всех задач
 		await Task.WhenAll(tasks);
 
-		// Выводим итоговое значение счётчика
 		Console.WriteLine($"Итоговое значение счётчика: {counter}");
 	}
 
@@ -30,9 +28,9 @@ class Program
 	{
 		for (int i = 0; i < iterations; i++)
 		{
-			mutex.WaitOne(); // Вход в критическую секцию (захват мьютекса)
+			mutex.WaitOne();
 			counter++;
-			mutex.ReleaseMutex(); // Выход из критической секции (освобождение мьютекса)
+			mutex.ReleaseMutex();
 		}
 	}
 }
