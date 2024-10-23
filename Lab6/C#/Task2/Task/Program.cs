@@ -10,10 +10,10 @@ class Program
 		int n = 10;
 		var channel = new BlockingCollection<int>();
 
-		// Запускаем горутину для генерации чисел Фибоначчи
+		// Запускаем задачу для генерации чисел Фибоначчи
 		var producerTask = Task.Run(() => GenerateFibonacci(n, channel));
 
-		// Запускаем горутину для чтения и вывода чисел
+		// Запускаем задачу для чтения и вывода чисел
 		var consumerTask = Task.Run(() => PrintFibonacci(channel));
 
 		// Ожидаем завершения задач
