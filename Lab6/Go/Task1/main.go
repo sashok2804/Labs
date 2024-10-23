@@ -53,17 +53,20 @@ func main() {
 	randomNumbersChan := make(chan []int)
 	sumChan := make(chan int)
 
+	// Запуск горутин
 	go calculateFactorial(5, factorialChan)
 	go generateRandomNumbers(5, randomNumbersChan)
 	go calculateSum(10, sumChan)
 
-	// Получение и вывод результатов из каналов
-	factorialResult := <-factorialChan
-	fmt.Printf("Факториал: %d\n", factorialResult)
-
-	randomNumbers := <-randomNumbersChan
-	fmt.Printf("Случайные числа: %v\n", randomNumbers)
-
-	sumResult := <-sumChan
-	fmt.Printf("Сумма числового ряда: %d\n", sumResult)
+	// Ожидание и вывод результатов по мере их готовности
+	for i := 0; i < 3; i++ {
+		select {
+		case factorialResult := <-factorialChan:
+			fmt.Printf("Факториал: %d\n", factorialResult)
+		case randomNumbers := <-randomNumbersChan:
+			fmt.Printf("Случайные числа: %v\n", randomNumbers)
+		case sumResult := <-sumChan:
+			fmt.Printf("Сумма числового ряда: %d\n", sumResult)
+		}
+	}
 }

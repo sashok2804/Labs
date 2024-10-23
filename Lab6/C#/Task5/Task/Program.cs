@@ -1,154 +1,107 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 class Program
 {
-	static void Main(string[] args)
+	// Описание структуры запроса для калькулятора
+	public class CalcRequest
 	{
-		// Обрабатываем флаг -t, по умолчанию значение 1
-		int task = 1;
-		for (int i = 0; i < args.Length; i++)
+		public double Operand1 { get; set; }
+		public double Operand2 { get; set; }
+		public string Operation { get; set; }
+		public TaskCompletionSource<double> Result { get; set; }
+		public TaskCompletionSource<string> Error { get; set; }
+	}
+
+	// Функция-калькулятор, обрабатывающая запросы
+	static void Calculator(ConcurrentQueue<CalcRequest> requests)
+	{
+		while (requests.TryDequeue(out CalcRequest req))
 		{
-			if (args[i] == "-t" && i + 1 < args.Length)
+			try
 			{
-				task = int.Parse(args[i + 1]); // Получаем значение после флага -t
-				break;
+				double result = 0;
+
+				// Обработка операций
+				switch (req.Operation)
+				{
+					case "+":
+					result = req.Operand1 + req.Operand2;
+					break;
+					case "-":
+					result = req.Operand1 - req.Operand2;
+					break;
+					case "*":
+					result = req.Operand1 * req.Operand2;
+					break;
+					case "/":
+					if (req.Operand2 == 0)
+					{
+						throw new DivideByZeroException("Деление на ноль");
+					}
+					result = req.Operand1 / req.Operand2;
+					break;
+					default:
+					throw new InvalidOperationException("Неизвестная операция");
+				}
+
+				// Если ошибок нет, устанавливаем результат
+				req.Result.SetResult(result);
+			}
+			catch (Exception ex)
+			{
+				// Если произошла ошибка, передаем её
+				req.Error.SetResult(ex.Message);
 			}
 		}
+	}
 
-		// Вызываем задачу в зависимости от переданного значения
-		switch (task)
+	// Функция для отправки запроса и получения результата
+	static async Task SendRequest(double operand1, double operand2, string operation, ConcurrentQueue<CalcRequest> requests)
+	{
+		var resultSource = new TaskCompletionSource<double>();
+		var errorSource = new TaskCompletionSource<string>();
+
+		var request = new CalcRequest
 		{
-			case 1:
-			Task1();
-			break;
-			case 2:
-			Task2();
-			break;
-			case 3:
-			Task3();
-			break;
-			case 4:
-			Task4();
-			break;
-			default:
-			Task1();
-			break;
+			Operand1 = operand1,
+			Operand2 = operand2,
+			Operation = operation,
+			Result = resultSource,
+			Error = errorSource
+		};
+
+		// Добавляем запрос в очередь
+		requests.Enqueue(request);
+
+		// Запускаем калькулятор для обработки запроса
+		Calculator(requests);
+
+		// Ожидаем результат или ошибку
+		var completedTask = await Task.WhenAny(resultSource.Task, errorSource.Task);
+
+		if (completedTask == resultSource.Task)
+		{
+			Console.WriteLine($"Результат: {operand1} {operation} {operand2} = {await resultSource.Task}");
 		}
-	}
-	static void Task1()
-	{
-		Person p = new Person("Alice", 30);
-		p.Info();
-
-		p.Birthday();
-		p.Info();
-	}
-
-	static void Task2()
-	{
-		Circle c = new Circle(5);
-		Console.WriteLine($"Circle Area: {c.Area():F2}");
-	}
-
-	static void Task3()
-	{
-		IShape c = new Circle(5);
-		IShape r = new Rectangle(4, 5);
-
-		List<IShape> shapes = new List<IShape> { c, r };
-
-		foreach (var shape in shapes)
+		else
 		{
-			Console.WriteLine($"Area: {shape.Area():F2}");
+			Console.WriteLine($"Ошибка: {await errorSource.Task}");
 		}
 	}
 
-	static void Task4()
+	static async Task Main(string[] args)
 	{
-		Book b = new Book("C# top", "yandex");
-		Console.WriteLine(b.String());
+		var requests = new ConcurrentQueue<CalcRequest>();
+
+		// Отправка запросов
+		await SendRequest(5, 3, "+", requests);
+		await SendRequest(7, 2, "-", requests);
+		await SendRequest(6, 3, "*", requests);
+		await SendRequest(10, 0, "/", requests);
+		await SendRequest(9, 3, "/", requests);
+
+		Console.ReadLine(); // Ожидание ввода для завершения программы
 	}
-
-}
-public struct Person
-{
-	public string Name { get; }
-	public int Age { get; private set; }
-
-	public Person(string name, int age)
-	{
-		Name = name;
-		Age = age;
-	}
-
-	public void Info()
-	{
-		Console.WriteLine($"Name: {Name}, Age: {Age}");
-	}
-
-	public void Birthday()
-	{
-		Age++;
-	}
-}
-
-public struct Circle : IShape
-{
-	public double Radius { get; }
-
-	public Circle(double radius)
-	{
-		Radius = radius;
-	}
-
-	public double Area()
-	{
-		return Math.PI * Radius * Radius;
-	}
-}
-
-public struct Rectangle : IShape
-{
-	public double Width { get; }
-	public double Height { get; }
-
-	public Rectangle(double width, double height)
-	{
-		Width = width;
-		Height = height;
-	}
-
-	public double Area()
-	{
-		return Width * Height;
-	}
-}
-
-public interface IShape
-{
-	double Area();
-}
-
-public struct Book : IStringer
-{
-	public string Title { get; }
-	public string Author { get; }
-
-	public Book(string title, string author)
-	{
-		Title = title;
-		Author = author;
-	}
-
-	public string String()
-	{
-		return $"Title: {Title}, Author: {Author}";
-	}
-}
-
-public interface IStringer
-{
-	string String();
 }
