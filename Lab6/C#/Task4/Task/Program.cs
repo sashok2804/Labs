@@ -9,7 +9,7 @@ class Program
 
 	static async Task Main(string[] args)
 	{
-		int numTasks = 5; // Количество задач (аналог горутин)
+		int numTasks = 5; // Количество задач 
 		int numIterations = 1000; // Количество итераций для каждой задачи
 
 		// Создаём и запускаем задачи
@@ -30,7 +30,6 @@ class Program
 	{
 		for (int i = 0; i < iterations; i++)
 		{
-			// Закомментируйте/разкомментируйте мьютекс, чтобы увидеть разницу
 			mutex.WaitOne(); // Вход в критическую секцию (захват мьютекса)
 			counter++;
 			mutex.ReleaseMutex(); // Выход из критической секции (освобождение мьютекса)
