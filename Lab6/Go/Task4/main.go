@@ -26,9 +26,9 @@ func main() {
 			defer wg.Done() // Уменьшаем счётчик WaitGroup на 1 после завершения горутины
 
 			for j := 0; j < numIterations; j++ {
-				mutex.Lock()
+				//mutex.Lock()
 				counter++
-				mutex.Unlock()
+				//mutex.Unlock()
 			}
 		}()
 	}

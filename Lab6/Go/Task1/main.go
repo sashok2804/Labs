@@ -29,7 +29,7 @@ func calculateFactorial(n int, resultChan chan<- int) {
 func generateRandomNumbers(count int, resultChan chan<- []int) {
 	fmt.Println("Генерация случайных чисел...")
 	time.Sleep(1 * time.Second)
-	randomNumbers := make([]int, count) // Создание слайса для случайных чисел
+	randomNumbers := make([]int, count)
 	for i := 0; i < count; i++ {
 		randomNumbers[i] = rand.Intn(100) // Генерация случайного числа от 0 до 99
 	}

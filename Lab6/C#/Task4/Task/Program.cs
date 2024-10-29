@@ -28,9 +28,9 @@ class Program
 	{
 		for (int i = 0; i < iterations; i++)
 		{
-			mutex.WaitOne();
+			//mutex.WaitOne();
 			counter++;
-			mutex.ReleaseMutex();
+			//mutex.ReleaseMutex();
 		}
 	}
 }

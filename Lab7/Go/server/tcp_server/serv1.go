@@ -42,7 +42,7 @@ func main() {
 		fmt.Println("Получено сообщение от клиента:", message)
 
 		// шлем клиенту подтверждение
-		confirmation := "Сообщение получено! Спасибо :3"
+		confirmation := "Сообщение получено!"
 		_, writeErr := clientConn.Write([]byte(confirmation))
 		if writeErr != nil {
 			fmt.Println("Ошибка при отправке подтверждения:", writeErr)
