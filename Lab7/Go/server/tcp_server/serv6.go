@@ -3,12 +3,17 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{} // Создаем новый экземпляр Upgrader
 
+var clients = make(map[*websocket.Conn]bool) // Храним подключенные клиенты
+var mu sync.Mutex                            // Мьютекс для безопасного доступа к clients
+
+// Обработчик для WebSocket соединения
 func handleConnection(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil) // Upgrade HTTP соединение до WebSocket
 	if err != nil {
@@ -16,6 +21,10 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer conn.Close()
+
+	mu.Lock()
+	clients[conn] = true // Добавляем нового клиента
+	mu.Unlock()
 
 	fmt.Println("Клиент подключен")
 
@@ -26,16 +35,16 @@ func handleConnection(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		// Проверяем, если сообщение "hello"
-		if string(msg) == "123" {
-			err = conn.WriteMessage(messageType, []byte("hi")) // Отправляем "hi"
-		} else {
-			err = conn.WriteMessage(messageType, msg) // Отправляем обратно то же сообщение
+		// Рассылаем сообщение всем подключенным клиентам
+		mu.Lock()
+		for client := range clients {
+			if err := client.WriteMessage(messageType, msg); err != nil {
+				fmt.Println("Ошибка при отправке сообщения:", err)
+				client.Close()          // Закрываем соединение, если возникла ошибка
+				delete(clients, client) // Удаляем клиента из списка
+			}
 		}
-		if err != nil {
-			fmt.Println("Ошибка при отправке сообщения:", err)
-			break
-		}
+		mu.Unlock()
 	}
 }
 

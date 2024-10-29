@@ -21,6 +21,18 @@ func main() {
 
 	fmt.Println("Соединение успешно установлено!")
 
+	// Чтение ввода пользователя в отдельной горутине
+	go func() {
+		for {
+			_, response, err := conn.ReadMessage()
+			if err != nil {
+				fmt.Println("Ошибка при получении ответа:", err)
+				return
+			}
+			fmt.Println("Сообщение от сервера:", string(response))
+		}
+	}()
+
 	// Чтение ввода пользователя
 	inputReader := bufio.NewReader(os.Stdin)
 
@@ -45,14 +57,7 @@ func main() {
 			fmt.Println("Ошибка при отправке сообщения:", err)
 			return
 		}
-
-		// Чтение ответа от сервера
-		_, response, err := conn.ReadMessage()
-		if err != nil {
-			fmt.Println("Ошибка при получении ответа:", err)
-			return
-		}
-
-		fmt.Println("Ответ от сервера:", string(response))
 	}
+
+	fmt.Println("Завершение работы клиента.")
 }

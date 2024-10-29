@@ -1,90 +1,69 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
-	"os/signal"
-	"sync"
-	"syscall"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
-var wg sync.WaitGroup // WaitGroup для отслеживания горутин
-
-// Структура для JSON-данных
-type Data struct {
-	Message string `json:"message"`
-}
+var upgrader = websocket.Upgrader{} // Создаем новый экземпляр Upgrader
 
 // Middleware для логирования
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now() // Запоминаем время начала обработки
-
-		// Передаем управление следующему обработчику
+		start := time.Now()
 		next.ServeHTTP(w, r)
-
-		// Логируем метод, URL и время выполнения
-		fmt.Printf("Метод: %s, URL: %s, Время: %s\n", r.Method, r.URL.Path, time.Since(start))
+		duration := time.Since(start)
+		fmt.Printf("Метод: %s, URL: %s, Время выполнения: %v\n", r.Method, r.URL, duration)
 	})
 }
 
-// обработчик для GET-запроса на /hello
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Метод не поддерживается", http.StatusMethodNotAllowed)
+// Обработчик для WebSocket соединения
+func handleWebSocket(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil) // Upgrade HTTP соединение до WebSocket
+	if err != nil {
+		fmt.Println("Ошибка при установке соединения:", err)
 		return
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Привет! Это ваше приветственное сообщение."))
+	defer conn.Close()
+
+	fmt.Println("Клиент подключен")
+
+	for {
+		messageType, msg, err := conn.ReadMessage() // Читаем сообщение от клиента
+		if err != nil {
+			fmt.Println("Ошибка при чтении сообщения:", err)
+			break
+		}
+
+		if string(msg) == "123" {
+			err = conn.WriteMessage(messageType, []byte("hi")) // Отправляем "hi"
+		} else {
+			err = conn.WriteMessage(messageType, msg) // Отправляем обратно то же сообщение
+		}
+		if err != nil {
+			fmt.Println("Ошибка при отправке сообщения:", err)
+			break
+		}
+	}
 }
 
-// обработчик для POST-запроса на /data
-func dataHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Метод не поддерживается", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var data Data
-	err := json.NewDecoder(r.Body).Decode(&data)
-	if err != nil {
-		http.Error(w, "Ошибка при обработке JSON", http.StatusBadRequest)
-		return
-	}
-
-	fmt.Println("Полученные данные:", data.Message)
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Данные успешно получены!"))
+// Обработчик для другого маршрута (пример)
+func handleAnotherRoute(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Это другой маршрут!")
 }
 
 func main() {
-	serverPort := ":12345" // выбрали порт
+	http.Handle("/ws", loggingMiddleware(http.HandlerFunc(handleWebSocket)))         // Устанавливаем обработчик для /ws
+	http.Handle("/another", loggingMiddleware(http.HandlerFunc(handleAnotherRoute))) // Другой маршрут
 
-	// Механизм graceful shutdown
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-
-	// Создаем новый маршрутизатор
-	mux := http.NewServeMux()
-	mux.HandleFunc("/hello", helloHandler) // маршрутизация GET /hello
-	mux.HandleFunc("/data", dataHandler)   // маршрутизация POST /data
-
-	// Оборачиваем маршрутизатор в middleware
-	loggedMux := loggingMiddleware(mux)
-
-	fmt.Println("Сервер запущен на порту", serverPort)
-
-	go func() {
-		err := http.ListenAndServe(serverPort, loggedMux) // запуск HTTP-сервера
-		if err != nil {
-			fmt.Println("Ошибка при запуске сервера:", err)
-		}
-	}()
-
-	// Ожидание сигнала завершения
-	<-sigs // Ждем сигнала остановки
-	fmt.Println("Завершение работы сервера...")
+	fmt.Println("Сервер запущен на порту 12345")
+	err := http.ListenAndServe(":12345", nil) // Запускаем HTTP-сервер
+	if err != nil {
+		fmt.Println("Ошибка при запуске сервера:", err)
+	}
 }
+
+//curl http://localhost:12345/another
