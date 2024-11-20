@@ -5,43 +5,63 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"sync"
+	"time"
 )
 
 func main() {
-	serverAddress := "localhost:12345" // адрес сервера
-
-	fmt.Println("Попытка подключиться к серверу на", serverAddress)
-	connection, connectionErr := net.Dial("tcp", serverAddress) // пробуем подключиться
-	if connectionErr != nil {
-		fmt.Println("Не удалось подключиться к серверу:", connectionErr)
-		os.Exit(1) // завершаем программу при ошибке
-	}
-	defer connection.Close() // закрываем соединение в конце работы
-
-	fmt.Println("Подключение успешное! Введите сообщение для отправки:")
-	inputReader := bufio.NewReader(os.Stdin) // читаем ввод от пользователя
-
-	message, readErr := inputReader.ReadString('\n') // читаем строку из консоли
-	if readErr != nil {
-		fmt.Println("Ошибка при чтении ввода:", readErr)
-		return // выход при ошибке
-	}
-
-	_, writeErr := connection.Write([]byte(message)) // отправляем сообщение серверу
-	if writeErr != nil {
-		fmt.Println("Ошибка при отправке сообщения:", writeErr)
+	serverAddress := "localhost:12345"
+	conn, err := net.Dial("tcp", serverAddress)
+	if err != nil {
+		fmt.Println("Ошибка подключения к серверу:", err)
 		return
 	}
+	defer conn.Close()
 
-	responseBuffer := make([]byte, 1024)                  // создаем буфер для ответа от сервера
-	n, readResponseErr := connection.Read(responseBuffer) // читаем ответ от сервера
-	if readResponseErr != nil {
-		fmt.Println("Ошибка при получении ответа:", readResponseErr)
-		return
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	// Фоновая горутина для проверки соединения
+	go func() {
+		defer wg.Done()
+		buf := make([]byte, 1) // Используется для проверки соединения
+		for {
+			time.Sleep(2 * time.Second) // Пауза между проверками
+			_, err := conn.Read(buf)
+			if err != nil {
+				fmt.Println("Соединение потеряно. Закрытие клиента...")
+				os.Exit(1) // Завершение программы при потере соединения
+			}
+		}
+	}()
+
+	reader := bufio.NewReader(os.Stdin)
+
+	for {
+		fmt.Print("Введите сообщение (или 'exit' для выхода): ")
+		message, _ := reader.ReadString('\n')
+
+		// Проверка на выход из программы
+		if message == "exit\n" {
+			fmt.Println("Выход из клиента...")
+			break
+		}
+
+		_, err = conn.Write([]byte(message))
+		if err != nil {
+			fmt.Println("Ошибка отправки сообщения:", err)
+			break
+		}
+
+		buf := make([]byte, 1024)
+		n, err := conn.Read(buf)
+		if err != nil {
+			fmt.Println("Ошибка чтения ответа:", err)
+			break
+		}
+
+		fmt.Println("Ответ сервера:", string(buf[:n]))
 	}
 
-	fmt.Println("Ответ от сервера:", string(responseBuffer[:n])) // выводим ответ на экран
-
-	// завершаем соединение
-	fmt.Println("Соединение завершено, спасибо за использование :)")
+	wg.Wait() // Ждем завершения фоновой горутины
 }

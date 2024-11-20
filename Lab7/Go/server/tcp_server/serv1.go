@@ -4,48 +4,96 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 )
 
+var wg sync.WaitGroup
+var listener net.Listener
+var clients = make(map[net.Conn]struct{})
+var mu sync.Mutex
+
+func handleConnection(conn net.Conn) {
+	defer wg.Done()
+	defer func() {
+		mu.Lock()
+		delete(clients, conn) // Удаляем соединение из списка активных
+		mu.Unlock()
+		conn.Close()
+	}()
+
+	buf := make([]byte, 1024)
+	for {
+		n, err := conn.Read(buf)
+		if err != nil {
+			if err.Error() == "EOF" {
+				fmt.Println("Клиент закрыл соединение.")
+			} else {
+				fmt.Println("Ошибка чтения:", err)
+			}
+			return
+		}
+
+		message := string(buf[:n])
+		fmt.Println("Получено сообщение:", message)
+
+		_, err = conn.Write([]byte("Сообщение получено"))
+		if err != nil {
+			fmt.Println("Ошибка отправки:", err)
+			return
+		}
+	}
+}
+
+func shutdownServer() {
+	fmt.Println("\nЗавершение работы сервера...")
+	listener.Close()
+
+	mu.Lock()
+	for conn := range clients {
+		conn.Close()
+	}
+	mu.Unlock()
+}
+
 func main() {
-	serverPort := ":12345"                            // выбрали порт
-	tcpListener, err := net.Listen("tcp", serverPort) // слушаем порт
+	var err error
+	listener, err = net.Listen("tcp", ":12345")
 	if err != nil {
 		fmt.Println("Ошибка при запуске сервера:", err)
-		os.Exit(1) // закрываем программу если ошибка
+		return
 	}
-	defer tcpListener.Close() // закрыть потом сервер
+	defer listener.Close()
 
-	fmt.Println("Сервер ждёт клиента на порту", serverPort)
+	fmt.Println("Сервер запущен на порту 12345")
 
-	// Принимаем только одно соединение
-	clientConn, acceptErr := tcpListener.Accept()
-	if acceptErr != nil {
-		fmt.Println("Ошибка при приеме соединения:", acceptErr)
-		return // выходим, если произошла ошибка
-	}
-	defer clientConn.Close() // закрываем соединение после работы
+	// Обработка завершения работы сервера
+	go func() {
+		sigs := make(chan os.Signal, 1)
+		signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+		<-sigs
+		shutdownServer()
+	}()
 
-	fmt.Println("Клиент подключился!")
-
-	buffer := make([]byte, 1024) // выделяем место под сообщение клиента
-
-	// читаем данные от клиента
 	for {
-		n, readErr := clientConn.Read(buffer)
-		if readErr != nil {
-			fmt.Println("Ошибка чтения данных:", readErr)
-			return // если ошибка, выходим
+		conn, err := listener.Accept()
+		if err != nil {
+			if opErr, ok := err.(*net.OpError); ok && opErr.Err.Error() == "use of closed network connection" {
+				fmt.Println("Сервер закрыт, завершение работы.")
+				break
+			}
+			fmt.Println("Ошибка при принятии соединения:", err)
+			continue
 		}
 
-		// просто пишем сообщение на экран сервера
-		message := string(buffer[:n])
-		fmt.Println("Получено сообщение от клиента:", message)
+		mu.Lock()
+		clients[conn] = struct{}{} // Добавляем соединение в список активных клиентов
+		mu.Unlock()
 
-		// шлем клиенту подтверждение
-		confirmation := "Сообщение получено!"
-		_, writeErr := clientConn.Write([]byte(confirmation))
-		if writeErr != nil {
-			fmt.Println("Ошибка при отправке подтверждения:", writeErr)
-		}
+		wg.Add(1)
+		go handleConnection(conn)
 	}
+
+	wg.Wait()
 }

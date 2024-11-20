@@ -45,6 +45,18 @@ func handleRegister(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Неверные данные", http.StatusBadRequest)
 		return
 	}
+
+	// Валидация имени и возраста
+	if newUser.Name == "" {
+		http.Error(w, "Имя не может быть пустым", http.StatusBadRequest)
+		return
+	}
+
+	if newUser.Age < 0 {
+		http.Error(w, "Возраст не может быть отрицательным", http.StatusBadRequest)
+		return
+	}
+
 	newUser.ID = uint(len(users) + 1)
 	users = append(users, newUser)
 	w.WriteHeader(http.StatusCreated)
@@ -114,6 +126,18 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Неверные данные", http.StatusBadRequest)
 		return
 	}
+
+	// Валидация имени и возраста
+	if newUser.Name == "" {
+		http.Error(w, "Имя не может быть пустым", http.StatusBadRequest)
+		return
+	}
+
+	if newUser.Age < 0 {
+		http.Error(w, "Возраст не может быть отрицательным", http.StatusBadRequest)
+		return
+	}
+
 	newUser.ID = uint(len(users) + 1)
 	users = append(users, newUser)
 	json.NewEncoder(w).Encode(newUser)
@@ -137,6 +161,17 @@ func updateUser(w http.ResponseWriter, r *http.Request) {
 	var updatedUser User
 	if err := json.NewDecoder(r.Body).Decode(&updatedUser); err != nil {
 		http.Error(w, "Неверные данные", http.StatusBadRequest)
+		return
+	}
+
+	// Валидация имени и возраста
+	if updatedUser.Name == "" {
+		http.Error(w, "Имя не может быть пустым", http.StatusBadRequest)
+		return
+	}
+
+	if updatedUser.Age < 0 {
+		http.Error(w, "Возраст не может быть отрицательным", http.StatusBadRequest)
 		return
 	}
 

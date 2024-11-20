@@ -76,8 +76,8 @@ class Program
 	static void Task4()
 	{
 		Console.Write("Введите строку: ");
-		string str = Console.ReadLine();
-		Console.WriteLine($"Строка '{str}' - {StrLen(str)} симв.");
+		string alena = Console.ReadLine();
+		Console.WriteLine($"Строка '{alena}' - {StrLen(alena)} симв.");
 	}
 
 	static void Task5()
